@@ -2,29 +2,82 @@ require ('math') -- for sin and cos
 hc = require 'hardoncollider' -- collision detection library
 require('classlib') -- for oo
 
+accelerationx = 0
+accelerationy = 0
+
 function on_collide(dt, shape1, shape2, mtv_x, mtv_y)
 
 	-- white is players1
 	-- red is players2
 	
 	if (shape1.team == 'ball' or shape2.team == 'ball') then
-		text[#text+1] = "ball"
+		
 		if(shape1.team == 'ball') then
-			ballx = ballx - mtv_x/2;
-			bally = bally - mtv_y/2;
-			ballBox:moveTo(ballx,bally)
+		
+			-- when first hit, mtv_x is like 1
+				
+			--accelerationx = accelerationx + mtv_x + mtv_x;
+			--accelerationy = accelerationy + mtv_y + mtv_y;
+		
+			--ballx = ballx + accelerationx;
+			--bally = bally + accelerationy;
+			
+			--ballBox:moveTo(ballx+ball:getWidth()/2,bally+ball:getHeight()/2)
 		end
 		
 		if(shape2.team == 'ball') then
-			ballx = ballx - mtv_x/2;
-			bally = bally - mtv_y/2;
-			ballBox:moveTo(ballx,bally)
+			
+			-- mtv_x and mtv_y may be negative or positive
+			-- need two separate cases for when player's x is less than ball's x
+			-- and vice versa
+			--if(shape1.x < shape2.x) then -- player is to left of ball
+				if(mtv_x > 0) then
+					text[#text+1] = "mtv_x is " .. tostring(mtv_x)
+					accelerationx = (accelerationx+1) * 0.5;
+					text[#text+1] = "accelerationx is " .. tostring(accelerationx)
+					accelerationx = accelerationx - (accelerationx*2);
+				end
+				if(mtv_x < 0) then
+					text[#text+1] = "mtv_x is " .. tostring(mtv_x)
+					accelerationx = (accelerationx+1) * -0.5;
+					text[#text+1] = "accelerationx is " .. tostring(accelerationx)
+					accelerationx = accelerationx - (accelerationx*2);
+				end
+				if(mtv_y > 0) then
+					text[#text+1] = "mtv_y is " .. tostring(mtv_y)
+					accelerationy = (accelerationy+1) * 0.5;
+					text[#text+1] = "accelerationy is " .. tostring(accelerationy)
+					accelerationy = accelerationy - (accelerationy*2);
+				end
+				if(mtv_y < 0) then
+					text[#text+1] = "mtv_y is " .. tostring(mtv_y)
+					accelerationy = (accelerationy+1) * -0.5;
+					text[#text+1] = "accelerationy is " .. tostring(accelerationy)
+					accelerationy = accelerationy - (accelerationy*2);
+				end
+			--end
+			--if(shape1.x > shape2.x) then -- ball is to left of player
+				--if(mtv_x > 0) then
+					--text[#text+1] = "mtv_x is " .. tostring(mtv_x)
+					--accelerationx = accelerationx * mtv_x;
+					--text[#text+1] = "accelerationx is " .. tostring(accelerationx)
+					--ballx = ballx - (accelerationx*4);
+				--end
+				--if(mtv_y > 0) then
+				--	text[#text+1] = "mtv_y is " .. tostring(mtv_y)
+				--	accelerationy = accelerationy * mtv_y;
+				--	text[#text+1] = "accelerationy is " .. tostring(accelerationy)
+				--	bally = bally - (accelerationy*4);
+				--end
+			--end
 		end
+		
+		
 	
 	else
 	
 		if (shape1.team == 'white' and shape2.team == 'red') then --shape1 is in players1
-			text[#text+1] = "first"
+			--text[#text+1] = "first"
 			players1[shape1.id].x = players1[shape1.id].x + mtv_x/2;
 			players1[shape1.id].y = players1[shape1.id].y + mtv_y/2;
 			
@@ -37,7 +90,7 @@ function on_collide(dt, shape1, shape2, mtv_x, mtv_y)
 		end
 	
 		if  (shape1.team == 'red' and shape2.team == 'white') then --shape1 is in players2
-			text[#text+1] = "second"
+			--text[#text+1] = "second"
 			players2[shape1.id].x = players2[shape1.id].x + mtv_x/2;
 			players2[shape1.id].y = players2[shape1.id].y + mtv_y/2;
 			
@@ -50,7 +103,7 @@ function on_collide(dt, shape1, shape2, mtv_x, mtv_y)
 		end
 		
 		if (shape1.team == 'white' and shape2.team == 'white') then --shape1 is in players1
-			text[#text+1] = "white"
+			--text[#text+1] = "white"
 			players1[shape1.id].x = players1[shape1.id].x + mtv_x/2;
 			players1[shape1.id].y = players1[shape1.id].y + mtv_y/2;
 			
@@ -63,7 +116,7 @@ function on_collide(dt, shape1, shape2, mtv_x, mtv_y)
 		end
 		
 		if (shape1.team == 'red' and shape2.team == 'red') then --shape1 is in players1
-			text[#text+1] = "red"
+			--text[#text+1] = "red"
 			players2[shape1.id].x = players2[shape1.id].x + mtv_x/2;
 			players2[shape1.id].y = players2[shape1.id].y + mtv_y/2;
 			
@@ -155,12 +208,14 @@ function love.load()
 		players2[i].height = -10
 		players2[i].width = -10
 		players2[i].box = hc.addRectangle(players2[i].x+10,players2[i].y+10,20,20)
+		--players2[i].box = hc.addCircle(players2[i].x+10,players2[i].y+10,10)
 		players2[i].box.id = i
 		players2[i].box.team = 'red'
 	end
 
 	--ballBox = hc.addCircle(ballx,bally, 5)
-	ballBox = hc.addRectangle(ballx,bally,ball:getWidth(),ball:getHeight())
+	--ballBox = hc.addRectangle(ballx,bally,ball:getWidth(),ball:getHeight())
+	ballBox = hc.addCircle(ballx,bally,5)
 	ballBox.team = 'ball'
 	ballBox.id = 11
 end
@@ -199,14 +254,32 @@ function love.draw()
 		--players2[i].box:draw()
 	end
 
-	ballBox:draw()
+	--ballBox:draw()
 
 end
 
 
 function love.update(dt)
 
-	--text[#text+1] = cTime
+	if(accelerationx > 0) then
+		accelerationx = accelerationx - 0.005;
+	end
+	if(accelerationx < 0) then
+		accelerationx = accelerationx + 0.005;
+	end
+	
+	if(accelerationy > 0) then
+		accelerationy = accelerationy - 0.005;
+	end
+	if(accelerationy < 0) then
+		accelerationy = accelerationy + 0.005;
+	end
+
+
+	ballx = ballx + (accelerationx*4)
+	bally = bally + (accelerationy*4)
+	
+	ballBox:moveTo(ballx+ball:getWidth()/2,bally+ball:getHeight()/2)
 	hc.update(dt)
 	cTime = love.timer.getTime()
 	instantaneousTime = math.floor(cTime*4)
@@ -231,9 +304,22 @@ function love.update(dt)
 		os.exit()
 	end
 	
-	if love.keyboard.isDown("s") then
-		dt = dt - 100
+	if love.keyboard.isDown("w") then
+		players2[9].y = players2[9].y - 1.1;
 	end
+	
+	if love.keyboard.isDown("s") then
+		players2[9].y = players2[9].y + 1.1;
+	end
+	
+	if love.keyboard.isDown("a") then
+		players2[9].x = players2[9].x - 1.1;
+	end
+	
+	if love.keyboard.isDown("d") then
+		players2[9].x = players2[9].x + 1.1;
+	end
+	
 	
 	for i = 0, 10 do
 		players1[i].box:moveTo(players1[i].x+10,players1[i].y+10)
@@ -247,17 +333,20 @@ function love.update(dt)
 		end
 		for j = 0, 10 do
 			players2[j]:moveTo(playerPositions2x[j]+players2[j].width, playerPositions2y[j]+players2[j].height)
+			--players2[j].x = playerPositions2x[j]+players2[j].width;
+			--players2[j].y = playerPositions2y[j]+players2[j].width;
 		end
 	end
+	--start = false;
 	
 	if cTime > 7.5 then
 		start = false
-	end
+		end
 	
 	if start == false then
-		for i = 10, 10 do
+		for i = 0, 10 do
 			players1[i]:moveTo(ballx,bally)
-			--players2[i]:moveTo(ballx,bally)
+			players2[i]:moveTo(ballx,bally)
 		end
 	end
 	
